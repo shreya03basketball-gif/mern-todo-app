@@ -2,12 +2,16 @@ import express from "express"
 import mongoose from "mongoose"
 import cors from "cors"
 import dotenv from "dotenv"
+import { fileURLToPath } from "url"
+import { dirname, join } from "path"
 
 import userRouter from "./routes/userRoute.js"
 import taskRouter from "./routes/taskRoute.js"
 import forgotPasswordRouter from "./routes/forgotPassword.js"
 
 //app config
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 dotenv.config()
 const app = express()
 const port = process.env.PORT || 8001
@@ -18,7 +22,13 @@ app.use(express.json())
 app.use(cors())
 
 //db config
-mongoose.connect(process.env.MONGO_URI, {
+const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI
+if (!mongoUri) {
+    console.error('Missing MongoDB connection string. Set MONGODB_URI in .env.')
+    process.exit(1)
+}
+
+mongoose.connect(mongoUri, {
     useNewUrlParser: true,
 }, (err) => {
     if (err) {
